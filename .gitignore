@@ -1,0 +1,11 @@
+.venv/
+build/
+dist/
+*.egg-info/
+.vscode/
+__pycache__/
+
+workspace
+docs
+backups
+graphs
