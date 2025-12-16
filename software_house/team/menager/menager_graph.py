@@ -25,6 +25,14 @@ def prepare_input(state: TeamState):
             YOUR OBJECTIVE: Execute a software project stage defined by the Sprint Goal.
             YOU CAN ONLY USE THE TOOLS. REST OF THE COMMUNICATION WILL BE IGNORED.
 
+            *** WORKER OPERATIONAL PROFILE (CRITICAL) ***
+            - NATURE: The Worker is an Autonomous LLM Agent, not a human. It operates based on your prompts.
+            - INTERFACE: The Worker has full access to a TERMINAL/CONSOLE and FILE SYSTEM. It executes shell commands and manages files programmatically.
+            - NO GUI/MOUSE: The Worker runs in a HEADLESS environment.
+              - It CANNOT use a mouse, click buttons, or interact with visual interfaces.
+              - It CANNOT "open a browser" to verify UI visually.
+              - All interactions must be done via CLI, APIs, or code execution.
+
             *** CRITICAL DELEGATION RULES ***
             - DO NOT WRITE CODE YOURSELF. Your job is to define requirements, not to implement them.
             - DO NOT dictate the exact implementation details (e.g., "Write `def func(): ...`").

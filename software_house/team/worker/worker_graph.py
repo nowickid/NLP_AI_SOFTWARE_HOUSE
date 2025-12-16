@@ -15,21 +15,28 @@ logger = logging.getLogger(__name__)
 
 
 def prepare_input(state: WorkerState):
-    logger.info("Worker task to do: %s", {state['task']})
+    logger.info("[Worker] task to do: %s", {state['task']})
     return {
         "messages": [
             SystemMessage(content=f"{state['system_message']}\n If you deem the task fully completed, write a concise report on it"),
             HumanMessage(content=f"CONTEXT: {state['context']}\nTASK TO DO: {state['task']}"),
-        ]
+        ],
+        "iteration": 1
     }
 
 def call_model(state: WorkerState):
+    if state["iteration"]  == WORKER_RECURSION_LIMIT:
+        logger.warning("[Worker] Reached maximum recursion limit (%d). Generating final report.", WORKER_RECURSION_LIMIT)
+        state["messages"].append(HumanMessage(content="You have reached the maximum number of iterations. Please provide a concise final report on the task. DO NOT USE TOOLS ANYMORE."))
+    
     response = llm_with_tools.invoke(state["messages"])
     metadata = response.usage_metadata
     accumulate_tokens(metadata["input_tokens"], metadata["output_tokens"], role="worker")
     return{
-        "messages": response
+        "messages": response,
+        "iteration": state["iteration"] + 1
     }
+
 
 def route(state: WorkerState) ->Literal["tool_node", END]:
     last_message = state["messages"][-1]
@@ -38,6 +45,7 @@ def route(state: WorkerState) ->Literal["tool_node", END]:
         return END
     
     return "tool_node"
+
     
 def process_worker_graph(state: WorkerState):
     graph = StateGraph(WorkerState)
@@ -65,12 +73,21 @@ def process_worker_graph(state: WorkerState):
         }
     )
     kill_background_processes()
-    report_content = result["messages"][-1].content
+    report = result["messages"][-1]
 
-    if isinstance(report_content, list):
-        text_report = report_content[0].get("content", "")
+    report_content = report.content
+
+    if isinstance(report_content, str):
+        text_report = report_content
+    elif isinstance(report_content, list):
+        text_report = "\n".join(
+            item["text"] for item in report_content 
+            if isinstance(item, dict) and "text" in item
+        )
+        if not text_report:
+            text_report = str(report_content)
     else:
         text_report = str(report_content)
 
-    logger.info("Worker generated report: %s", text_report)
+    logger.info("[Worker] generated report: %s", text_report)
     return text_report

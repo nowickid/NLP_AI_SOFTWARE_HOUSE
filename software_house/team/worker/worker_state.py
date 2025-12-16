@@ -8,3 +8,4 @@ class WorkerState(TypedDict):
     system_message: str
     context: str
     task: str
+    iteration: int
