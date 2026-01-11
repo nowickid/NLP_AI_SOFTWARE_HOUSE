@@ -1,0 +1,88 @@
+openapi: 3.0.3
+info:
+  title: Asset Management API
+  version: 1.0.0
+servers:
+  - url: http://localhost:3000/api
+paths:
+  /employees:
+    get:
+      summary: Get all employees
+      responses:
+        '200':
+          description: A list of employees
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Employee'
+    post:
+      summary: Register a new employee
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewEmployee'
+      responses:
+        '201':
+          description: Employee created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Employee'
+  /assets:
+    get:
+      summary: Get all assets
+      responses:
+        '200':
+          description: A list of assets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Asset'
+  /assignments:
+    get:
+      summary: Get all assignments
+      responses:
+        '200':
+          description: A list of assignments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Assignment'
+
+components:
+  schemas:
+    Employee:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        department: { type: string }
+    NewEmployee:
+      type: object
+      required: [name, department]
+      properties:
+        name: { type: string }
+        department: { type: string }
+    Asset:
+      type: object
+      properties:
+        id: { type: integer }
+        type: { type: string }
+        serial_number: { type: string }
+        status: { type: string, enum: [available, assigned, maintenance] }
+    Assignment:
+      type: object
+      properties:
+        id: { type: integer }
+        employee_id: { type: integer }
+        asset_id: { type: integer }
+        assigned_date: { type: string, format: date-time }
+        return_date: { type: string, format: date-time, nullable: true }

@@ -1,0 +1,22 @@
+{
+    "worker": {
+        "input_tokens": 12467,
+        "output_tokens": 70679,
+        "api_calls": 13
+    },
+    "menager": {
+        "input_tokens": 26710,
+        "output_tokens": 5247,
+        "api_calls": 7
+    },
+    "architect": {
+        "input_tokens": 5125,
+        "output_tokens": 2717,
+        "api_calls": 3
+    },
+    "summary": {
+        "input_tokens": 44302,
+        "output_tokens": 78643,
+        "api_calls": 23
+    }
+}

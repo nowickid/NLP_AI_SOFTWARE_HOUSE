@@ -1,0 +1,1 @@
+Develop a simple 2D arcade game. The player controls a character at the bottom of the screen moving left/right. Obstacles should spawn at the top and move downwards. The game must include: A scoring system that increases over time. Collision detection that triggers a 'Game Over' state. A restart mechanism without restarting the application.

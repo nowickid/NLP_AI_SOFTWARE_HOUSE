@@ -2,7 +2,7 @@ from software_house.state import State
 from .architect_tools import tools
 
 from langchain_core.messages import SystemMessage, HumanMessage
-from llm import gemini
+from llm import gemini, local_llm
 from langgraph.prebuilt import ToolNode
 from tokens_sum import accumulate_tokens
 from langgraph.graph import StateGraph, START, END
@@ -13,7 +13,9 @@ import logging
 from pathlib import Path
 from utils import save_graph_visualization
 
+# llm_with_tools = gemini.bind_tools(tools)
 llm_with_tools = gemini.bind_tools(tools)
+
 tool_node = ToolNode(tools)
 logger = logging.getLogger(__name__)
 

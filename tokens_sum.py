@@ -1,41 +1,24 @@
-_input_tokens = 0
-_output_tokens = 0
-_api_calls = 0
-
-sum ={
-    "worker": {
-        "input_tokens": 0,
-        "output_tokens": 0,
-        "api_calls": 0
-    },
-    "menager": {
-        "input_tokens": 0,
-        "output_tokens": 0,
-        "api_calls": 0
-    },
-    "architect": {
-        "input_tokens": 0,
-        "output_tokens": 0,
-        "api_calls": 0
-    }
+sum_data = {  
+    "worker": { "input_tokens": 0, "output_tokens": 0, "api_calls": 0 },
+    "menager": { "input_tokens": 0, "output_tokens": 0, "api_calls": 0 },
+    "architect": { "input_tokens": 0, "output_tokens": 0, "api_calls": 0 },
+    "summary": { "input_tokens": 0, "output_tokens": 0, "api_calls": 0 }
 }
-def _accumulate_tokens(input_tokens: int, output_tokens: int, api_calls: int):
-    global _input_tokens, _output_tokens, _api_calls
-    _input_tokens += input_tokens
-    _output_tokens += output_tokens
-    _api_calls += api_calls
 
 def get_token_counts():
-    return _input_tokens, _output_tokens
+    return sum_data["summary"]["input_tokens"], sum_data["summary"]["output_tokens"]
+
+def get_sum():
+    return sum_data
 
 def accumulate_tokens(input_tokens: int, output_tokens: int, role: str):
-    global sum
+    global sum_data
     role_lower = role.lower()
 
-    if role_lower in sum:
-        sum[role_lower]["input_tokens"] += input_tokens
-        sum[role_lower]["output_tokens"] += output_tokens
-        sum[role_lower]["api_calls"] += 1
+    if role_lower in sum_data:
+        sum_data[role_lower]["input_tokens"] += input_tokens
+        sum_data[role_lower]["output_tokens"] += output_tokens
+        sum_data[role_lower]["api_calls"] += 1
 
-
-    _accumulate_tokens(input_tokens, output_tokens, 1)
+    if role_lower != "summary":
+        accumulate_tokens(input_tokens, output_tokens, "summary")

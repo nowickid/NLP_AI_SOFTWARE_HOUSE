@@ -7,8 +7,8 @@ logger = logging.getLogger(__name__)
 
 @tool
 def list_files(path = ""):
-    """Returns a list of all files in the specified directory and its subdirectories. 
-    If no path is provided, lists files in the root workspace directory."""
+    """Returns a list of all files in the specified directory and its subdirectories,
+    excluding files in ignored directories like node_modules, __pycache__ ..."""
     logger.info(f"      Listing files in path: '{path}'")
     root_dir = Path(WORKSPACE_DIR).resolve()
     target_dir = (root_dir / path).resolve()
@@ -19,17 +19,60 @@ def list_files(path = ""):
     if not target_dir.exists():
         return f"Error: The specified path '{path}' does not exist."
 
-    files = [
-        str(f.relative_to(root_dir)) 
-        for f in target_dir.rglob("*") 
-        if f.is_file()
-    ]
+    # Lista katalogów do zignorowania - możesz tu dodać więcej (np. .venv, dist, build)
+    IGNORED_FOLDERS = {"node_modules", ".git", "__pycache__", ".venv", "venv", ".idea", ".vscode"}
+
+    files = []
+    # Używamy rglob do znalezienia wszystkich plików
+    for f in target_dir.rglob("*"):
+        if f.is_file():
+            rel_path = f.relative_to(root_dir)
+            
+            # Sprawdź, czy jakakolwiek część ścieżki (folder nadrzędny) jest na liście ignorowanych
+            # rel_path.parts rozbija ścieżkę na tuple, np. ('project', 'node_modules', 'package.json')
+            path_parts = set(rel_path.parts)
+            
+            # Jeśli część wspólna zbiorów nie jest pusta, to znaczy, że plik jest w ignorowanym folderze
+            if not path_parts.intersection(IGNORED_FOLDERS):
+                files.append(str(rel_path))
+    
+    return "\n".join(files) if files else "No files found."
+
+def tmp_list_files(path = ""):
+    """Returns a list of all files in the specified directory and its subdirectories,
+    excluding files in ignored directories like node_modules, __pycache__ ..."""
+    logger.info(f"      Listing files in path: '{path}'")
+    root_dir = Path(WORKSPACE_DIR).resolve()
+    target_dir = (root_dir / path).resolve()
+
+    if not target_dir.is_relative_to(root_dir):
+        return f"Error: Unauthorized access to path '{path}'."
+
+    if not target_dir.exists():
+        return f"Error: The specified path '{path}' does not exist."
+
+    # Lista katalogów do zignorowania - możesz tu dodać więcej (np. .venv, dist, build)
+    IGNORED_FOLDERS = {"node_modules", ".git", "__pycache__", ".venv", "venv", ".idea", ".vscode"}
+
+    files = []
+    # Używamy rglob do znalezienia wszystkich plików
+    for f in target_dir.rglob("*"):
+        if f.is_file():
+            rel_path = f.relative_to(root_dir)
+            
+            # Sprawdź, czy jakakolwiek część ścieżki (folder nadrzędny) jest na liście ignorowanych
+            # rel_path.parts rozbija ścieżkę na tuple, np. ('project', 'node_modules', 'package.json')
+            path_parts = set(rel_path.parts)
+            
+            # Jeśli część wspólna zbiorów nie jest pusta, to znaczy, że plik jest w ignorowanym folderze
+            if not path_parts.intersection(IGNORED_FOLDERS):
+                files.append(str(rel_path))
     
     return "\n".join(files) if files else "No files found."
 
 
 @tool
-def write_to_file(filename, content):
+def write_to_file(filename: str, content: str):
     """Writes the given content to a file with the specified filename in the workspace directory."""
     logger.info(f"      Writing to file: '{filename}'")
     root_dir = Path(WORKSPACE_DIR).resolve()

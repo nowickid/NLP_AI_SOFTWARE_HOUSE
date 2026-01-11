@@ -1,4 +1,4 @@
-from utils import list_files, write_to_file, read_file
+from utils import list_files, write_to_file, read_file, tmp_list_files
 from config import WORKSPACE_DIR
 import subprocess
 from langchain.tools import tool
@@ -77,8 +77,15 @@ def delete_file(file_path: str):
         return f"Error: Unauthorized access to path '{file_path}'."
     if not target_file.exists():
         return f"Error: The specified file '{file_path}' does not exist."
-    target_file.unlink()
-    return f"Successfully deleted file '{file_path}'."
+    if target_file.is_dir():
+        return f"Error: The path '{file_path}' is a directory, not a file. Cannot delete."
+
+    # 4. Bezpieczne usunięcie (z try-except na wszelki wypadek)
+    try:
+        target_file.unlink()
+        return f"Successfully deleted file '{file_path}'."
+    except Exception as e:
+        return f"Error: Failed to delete file. Reason: {str(e)}"
     
     
 def kill_background_processes():

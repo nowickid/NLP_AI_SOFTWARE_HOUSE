@@ -1,0 +1,1 @@
+cd asset-management-frontend && npm run dev -- --host

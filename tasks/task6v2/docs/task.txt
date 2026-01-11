@@ -1,0 +1,12 @@
+
+    Create a fullstack Asset Management application that allows organizations to track and manage their device inventory and employee assignments.
+Use Cases:
+1. Register new employees with their name and department
+2. Add new devices to inventory (type, serial number) - default status must be 'available'
+3. List devices that are currently available in stock
+4. Assign assets to employees - this must fail if the asset is already assigned to someone else or is in maintenance
+5. Process the return of an asset from an employee (change status back to 'available')
+6. Flag an asset as broken (status 'maintenance')
+7. View what assets a specific employee currently holds
+8. View complete assignment history for any device (audit log). The frontend should be visually stunning, highly polished, and provide an excellent user experience with smooth interactions and clear feedback for all actions.
+    

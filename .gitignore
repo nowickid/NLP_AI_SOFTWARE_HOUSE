@@ -5,9 +5,9 @@ dist/
 .vscode/
 __pycache__/
 
-workspace
-docs
 backups
 graphs
 
 xOld
+.env
+node_modules

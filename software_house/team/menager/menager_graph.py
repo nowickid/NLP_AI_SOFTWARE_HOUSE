@@ -1,7 +1,7 @@
 from langgraph.graph import StateGraph, START, END
 from langchain_core.messages import SystemMessage, HumanMessage
 from langgraph.prebuilt import ToolNode
-from llm import gemini
+from llm import gemini, local_llm
 from tokens_sum import accumulate_tokens
 from typing import Literal
 from software_house.team.team_state import TeamState
@@ -10,7 +10,9 @@ from config import GENERATE_GRAPHS
 from utils import save_graph_visualization
 import logging
 
+# llm_with_tools = gemini.bind_tools(tools)
 llm_with_tools = gemini.bind_tools(tools)
+
 tool_node = ToolNode(tools)
 
 logger = logging.getLogger(__name__)
@@ -56,7 +58,7 @@ def prepare_input(state: TeamState):
               * GOOD: "Create a class `X` that handles add/remove operations and persists data to JSON. Handle file not found errors."
             - PROVIDE CONTEXT: The Worker is stateless. You MUST paste all relevant existing code, error logs, or file structures into their context message so they can see the current state.
 
-            4. Report: If the goal is fully achieved, submit a summary to the architect.
+            4. Report: If the goal is FULLY achieved (u must be absolutly sure about it), submit a summary to the architect.
         """
         return {
             "messages": [

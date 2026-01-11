@@ -1,25 +1,36 @@
 from langgraph.graph import StateGraph, START, END
 from .worker_state import WorkerState
-from .worker_tools import tools, kill_background_processes
+from .worker_tools import tools, kill_background_processes, tmp_list_files
 from langchain_core.messages import SystemMessage, HumanMessage
 from langgraph.prebuilt import ToolNode
-from llm import gemini
+from llm import gemini, local_llm
 from tokens_sum import accumulate_tokens
 from typing import Literal
 from config import WORKER_RECURSION_LIMIT, GENERATE_GRAPHS
 import logging
 
 llm_with_tools = gemini.bind_tools(tools)
+# llm_with_tools = local_llm.bind_tools(tools)
+
 tool_node = ToolNode(tools)
 logger = logging.getLogger(__name__)
 
 
 def prepare_input(state: WorkerState):
-    logger.info("[Worker] task to do: %s", {state['task']})
+    project_files = tmp_list_files()
+
+    logger.info("[Worker] task to do: %s, \n\n project stuct: %s", {state['task']}, {project_files})
     return {
         "messages": [
-            SystemMessage(content=f"{state['system_message']}\n If you deem the task fully completed, write a concise report on it"),
-            HumanMessage(content=f"CONTEXT: {state['context']}\nTASK TO DO: {state['task']}"),
+            SystemMessage(content=f"""{state['system_message']}\n
+                          RULES:
+- If you need to create a file, call 'write_to_file' immediately.
+- If you need to read, call 'read_file'.
+- DO NOT describe what you will do. DO NOT output code blocks.
+- JUST CALL THE TOOLS.
+- If you deem the task fully completed, write a concise report on it
+                          """),
+            HumanMessage(content=f"CONTEXT: {state['context']}\nTASK TO DO: {state['task']}, \n \n CURRENT PROJECT FILES: {project_files}"),
         ],
         "iteration": 1
     }

@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "body-parser": "^2.2.2",
+    "react-hot-toast": "^2.6.0"
+  }
+}

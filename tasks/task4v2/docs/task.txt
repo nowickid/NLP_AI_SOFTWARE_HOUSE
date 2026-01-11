@@ -1,0 +1,1 @@
+Create a backend system for Asset Management that provides data persistence, executes business logic, and exposes all endpoints defined in the provided OpenAPI specification file. Use light local SQL-based database. spec file:{openApi}

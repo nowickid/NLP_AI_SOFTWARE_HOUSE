@@ -1,0 +1,272 @@
+Create a backend system for Asset Management that provides data persistence, executes business logic, and exposes all endpoints defined in the provided OpenAPI specification file. Use light local SQL-based database. 
+spec file: 
+    openapi: 3.0.3
+info:
+  title: Asset Management API
+  description: Simple API for managing employees, assets and assignments
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:3000/api
+    description: Local server
+
+paths:
+  /employees:
+    post:
+      summary: Register a new employee
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - department
+              properties:
+                name:
+                  type: string
+                  example: John Doe
+                department:
+                  type: string
+                  example: IT
+      responses:
+        '201':
+          description: Employee created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Employee'
+
+  /employees/{id}/assets:
+    get:
+      summary: Get assets assigned to employee
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: List of employee assets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Asset'
+
+  /assets:
+    post:
+      summary: Add a new asset
+      description: Default status is 'available'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - type
+                - serial_number
+              properties:
+                type:
+                  type: string
+                  example: Laptop
+                serial_number:
+                  type: string
+                  example: SN123456789
+      responses:
+        '201':
+          description: Asset created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Asset'
+
+    get:
+      summary: List assets
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum:
+              - available
+              - assigned
+              - maintenance
+          example: available
+      responses:
+        '200':
+          description: List of assets
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Asset'
+
+  /assets/{id}/history:
+    get:
+      summary: Get asset assignment history
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Assignment history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AssignmentHistory'
+
+  /assignments:
+    post:
+      summary: Assign asset to employee
+      description: Fails if asset is already assigned or in maintenance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - asset_id
+                - employee_id
+              properties:
+                asset_id:
+                  type: integer
+                  example: 123
+                employee_id:
+                  type: integer
+                  example: 456
+      responses:
+        '201':
+          description: Assignment created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Assignment'
+        '409':
+          description: Asset already assigned or in maintenance
+
+  /returns:
+    post:
+      summary: Return asset from employee
+      description: Changes asset status back to 'available'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - assignment_id
+              properties:
+                assignment_id:
+                  type: integer
+                  example: 789
+      responses:
+        '200':
+          description: Asset returned
+
+  /maintenance:
+    post:
+      summary: Flag asset as broken
+      description: Changes asset status to 'maintenance'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - asset_id
+              properties:
+                asset_id:
+                  type: integer
+                  example: 123
+                issue_description:
+                  type: string
+                  example: Screen not working
+      responses:
+        '201':
+          description: Asset flagged for maintenance
+
+components:
+  schemas:
+    Employee:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: John Doe
+        department:
+          type: string
+          example: IT
+
+    Asset:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 123
+        type:
+          type: string
+          example: Laptop
+        serial_number:
+          type: string
+          example: SN123456789
+        status:
+          type: string
+          enum:
+            - available
+            - assigned
+            - maintenance
+          example: available
+
+    Assignment:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 789
+        asset_id:
+          type: integer
+          example: 123
+        employee_id:
+          type: integer
+          example: 1
+        assigned_at:
+          type: string
+          format: date-time
+          example: '2024-01-20T09:00:00Z'
+
+    AssignmentHistory:
+      type: object
+      properties:
+        assignment_id:
+          type: integer
+          example: 789
+        employee_name:
+          type: string
+          example: John Doe
+        assigned_at:
+          type: string
+          format: date-time
+          example: '2024-01-20T09:00:00Z'
+        returned_at:
+          type: string
+          format: date-time
+          example: '2024-02-15T16:30:00Z'
+
+    
